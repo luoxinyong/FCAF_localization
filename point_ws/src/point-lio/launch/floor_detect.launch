@@ -1,0 +1,7 @@
+<launch>
+
+	<node pkg="point_lio" type="floor_detect" name="floor_detect" output="screen" > 
+	<rosparam command="load" file="$(find point_lio)/config/avia.yaml" />
+	</node>
+
+</launch>

@@ -1,0 +1,674 @@
+backend_args = None
+custom_hooks = [
+    dict(after_iter=True, type='EmptyCacheHook'),
+]
+data_root = 'data/s3dis/'
+dataset_type = 'S3DISDataset'
+default_hooks = dict(
+    checkpoint=dict(interval=-1, type='CheckpointHook'),
+    logger=dict(interval=50, type='LoggerHook'),
+    param_scheduler=dict(type='ParamSchedulerHook'),
+    sampler_seed=dict(type='DistSamplerSeedHook'),
+    timer=dict(type='IterTimerHook'),
+    visualization=dict(type='Det3DVisualizationHook'))
+default_scope = 'mmdet3d'
+env_cfg = dict(
+    cudnn_benchmark=False,
+    dist_cfg=dict(backend='nccl'),
+    mp_cfg=dict(mp_start_method='fork', opencv_num_threads=0))
+launcher = 'none'
+load_from = None
+log_level = 'INFO'
+log_processor = dict(by_epoch=True, type='LogProcessor', window_size=50)
+metainfo = dict(classes=(
+    'table',
+    'chair',
+    'sofa',
+    'bookcase',
+    'board',
+))
+model = dict(
+    backbone=dict(depth=34, in_channels=3, type='MinkResNet'),
+    bbox_head=dict(
+        bbox_loss=dict(type='AxisAlignedIoULoss'),
+        center_loss=dict(type='mmdet.CrossEntropyLoss', use_sigmoid=True),
+        cls_loss=dict(type='mmdet.FocalLoss'),
+        in_channels=(
+            64,
+            128,
+            256,
+            512,
+        ),
+        num_classes=5,
+        num_reg_outs=6,
+        out_channels=128,
+        pts_assign_threshold=27,
+        pts_center_threshold=18,
+        pts_prune_threshold=100000,
+        type='FCAF3DHead',
+        voxel_size=0.01),
+    data_preprocessor=dict(type='Det3DDataPreprocessor'),
+    test_cfg=dict(iou_thr=0.5, nms_pre=1000, score_thr=0.01),
+    train_cfg=dict(),
+    type='MinkSingleStage3DDetector')
+optim_wrapper = dict(
+    clip_grad=dict(max_norm=10, norm_type=2),
+    optimizer=dict(lr=0.001, type='AdamW', weight_decay=0.0001),
+    type='OptimWrapper')
+param_scheduler = dict(
+    begin=0,
+    by_epoch=True,
+    end=12,
+    gamma=0.1,
+    milestones=[
+        8,
+        11,
+    ],
+    type='MultiStepLR')
+resume = False
+test_area = 5
+test_cfg = dict(type='TestLoop')
+test_dataloader = dict(
+    batch_size=1,
+    dataset=dict(
+        ann_file='s3dis_infos_Area_5.pkl',
+        backend_args=None,
+        box_type_3d='Depth',
+        data_root='data/s3dis/',
+        metainfo=dict(
+            classes=(
+                'table',
+                'chair',
+                'sofa',
+                'bookcase',
+                'board',
+            )),
+        pipeline=[
+            dict(
+                backend_args=None,
+                coord_type='DEPTH',
+                load_dim=6,
+                shift_height=False,
+                type='LoadPointsFromFile',
+                use_color=True,
+                use_dim=[
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                ]),
+            dict(
+                flip=False,
+                img_scale=(
+                    1333,
+                    800,
+                ),
+                pts_scale_ratio=1,
+                transforms=[
+                    dict(
+                        rot_range=[
+                            0,
+                            0,
+                        ],
+                        scale_ratio_range=[
+                            1.0,
+                            1.0,
+                        ],
+                        translation_std=[
+                            0,
+                            0,
+                            0,
+                        ],
+                        type='GlobalRotScaleTrans'),
+                    dict(
+                        flip_ratio_bev_horizontal=0.5,
+                        flip_ratio_bev_vertical=0.5,
+                        sync_2d=False,
+                        type='RandomFlip3D'),
+                    dict(num_points=100000, type='PointSample'),
+                    dict(color_mean=None, type='NormalizePointsColor'),
+                ],
+                type='MultiScaleFlipAug3D'),
+            dict(keys=[
+                'points',
+            ], type='Pack3DDetInputs'),
+        ],
+        test_mode=True,
+        type='S3DISDataset'),
+    num_workers=1,
+    sampler=dict(shuffle=False, type='DefaultSampler'))
+test_evaluator = dict(type='IndoorMetric')
+test_pipeline = [
+    dict(
+        backend_args=None,
+        coord_type='DEPTH',
+        load_dim=6,
+        shift_height=False,
+        type='LoadPointsFromFile',
+        use_color=True,
+        use_dim=[
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+        ]),
+    dict(
+        flip=False,
+        img_scale=(
+            1333,
+            800,
+        ),
+        pts_scale_ratio=1,
+        transforms=[
+            dict(
+                rot_range=[
+                    0,
+                    0,
+                ],
+                scale_ratio_range=[
+                    1.0,
+                    1.0,
+                ],
+                translation_std=[
+                    0,
+                    0,
+                    0,
+                ],
+                type='GlobalRotScaleTrans'),
+            dict(
+                flip_ratio_bev_horizontal=0.5,
+                flip_ratio_bev_vertical=0.5,
+                sync_2d=False,
+                type='RandomFlip3D'),
+            dict(num_points=100000, type='PointSample'),
+            dict(color_mean=None, type='NormalizePointsColor'),
+        ],
+        type='MultiScaleFlipAug3D'),
+    dict(keys=[
+        'points',
+    ], type='Pack3DDetInputs'),
+]
+train_area = [
+    1,
+    2,
+    3,
+    4,
+    6,
+]
+train_cfg = dict(max_epochs=12, type='EpochBasedTrainLoop', val_interval=12)
+train_dataloader = dict(
+    batch_size=8,
+    dataset=dict(
+        dataset=dict(
+            datasets=[
+                dict(
+                    ann_file='s3dis_infos_Area_1.pkl',
+                    backend_args=None,
+                    box_type_3d='Depth',
+                    data_root='data/s3dis/',
+                    filter_empty_gt=True,
+                    metainfo=dict(
+                        classes=(
+                            'table',
+                            'chair',
+                            'sofa',
+                            'bookcase',
+                            'board',
+                        )),
+                    pipeline=[
+                        dict(
+                            backend_args=None,
+                            coord_type='DEPTH',
+                            load_dim=6,
+                            shift_height=False,
+                            type='LoadPointsFromFile',
+                            use_color=True,
+                            use_dim=[
+                                0,
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                            ]),
+                        dict(
+                            type='LoadAnnotations3D',
+                            with_bbox_3d=True,
+                            with_label_3d=True),
+                        dict(num_points=100000, type='PointSample'),
+                        dict(
+                            flip_ratio_bev_horizontal=0.5,
+                            flip_ratio_bev_vertical=0.5,
+                            sync_2d=False,
+                            type='RandomFlip3D'),
+                        dict(
+                            rot_range=[
+                                -0.087266,
+                                0.087266,
+                            ],
+                            scale_ratio_range=[
+                                0.9,
+                                1.1,
+                            ],
+                            shift_height=False,
+                            translation_std=[
+                                0.1,
+                                0.1,
+                                0.1,
+                            ],
+                            type='GlobalRotScaleTrans'),
+                        dict(color_mean=None, type='NormalizePointsColor'),
+                        dict(
+                            keys=[
+                                'points',
+                                'gt_bboxes_3d',
+                                'gt_labels_3d',
+                            ],
+                            type='Pack3DDetInputs'),
+                    ],
+                    type='S3DISDataset'),
+                dict(
+                    ann_file='s3dis_infos_Area_2.pkl',
+                    backend_args=None,
+                    box_type_3d='Depth',
+                    data_root='data/s3dis/',
+                    filter_empty_gt=True,
+                    metainfo=dict(
+                        classes=(
+                            'table',
+                            'chair',
+                            'sofa',
+                            'bookcase',
+                            'board',
+                        )),
+                    pipeline=[
+                        dict(
+                            backend_args=None,
+                            coord_type='DEPTH',
+                            load_dim=6,
+                            shift_height=False,
+                            type='LoadPointsFromFile',
+                            use_color=True,
+                            use_dim=[
+                                0,
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                            ]),
+                        dict(
+                            type='LoadAnnotations3D',
+                            with_bbox_3d=True,
+                            with_label_3d=True),
+                        dict(num_points=100000, type='PointSample'),
+                        dict(
+                            flip_ratio_bev_horizontal=0.5,
+                            flip_ratio_bev_vertical=0.5,
+                            sync_2d=False,
+                            type='RandomFlip3D'),
+                        dict(
+                            rot_range=[
+                                -0.087266,
+                                0.087266,
+                            ],
+                            scale_ratio_range=[
+                                0.9,
+                                1.1,
+                            ],
+                            shift_height=False,
+                            translation_std=[
+                                0.1,
+                                0.1,
+                                0.1,
+                            ],
+                            type='GlobalRotScaleTrans'),
+                        dict(color_mean=None, type='NormalizePointsColor'),
+                        dict(
+                            keys=[
+                                'points',
+                                'gt_bboxes_3d',
+                                'gt_labels_3d',
+                            ],
+                            type='Pack3DDetInputs'),
+                    ],
+                    type='S3DISDataset'),
+                dict(
+                    ann_file='s3dis_infos_Area_3.pkl',
+                    backend_args=None,
+                    box_type_3d='Depth',
+                    data_root='data/s3dis/',
+                    filter_empty_gt=True,
+                    metainfo=dict(
+                        classes=(
+                            'table',
+                            'chair',
+                            'sofa',
+                            'bookcase',
+                            'board',
+                        )),
+                    pipeline=[
+                        dict(
+                            backend_args=None,
+                            coord_type='DEPTH',
+                            load_dim=6,
+                            shift_height=False,
+                            type='LoadPointsFromFile',
+                            use_color=True,
+                            use_dim=[
+                                0,
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                            ]),
+                        dict(
+                            type='LoadAnnotations3D',
+                            with_bbox_3d=True,
+                            with_label_3d=True),
+                        dict(num_points=100000, type='PointSample'),
+                        dict(
+                            flip_ratio_bev_horizontal=0.5,
+                            flip_ratio_bev_vertical=0.5,
+                            sync_2d=False,
+                            type='RandomFlip3D'),
+                        dict(
+                            rot_range=[
+                                -0.087266,
+                                0.087266,
+                            ],
+                            scale_ratio_range=[
+                                0.9,
+                                1.1,
+                            ],
+                            shift_height=False,
+                            translation_std=[
+                                0.1,
+                                0.1,
+                                0.1,
+                            ],
+                            type='GlobalRotScaleTrans'),
+                        dict(color_mean=None, type='NormalizePointsColor'),
+                        dict(
+                            keys=[
+                                'points',
+                                'gt_bboxes_3d',
+                                'gt_labels_3d',
+                            ],
+                            type='Pack3DDetInputs'),
+                    ],
+                    type='S3DISDataset'),
+                dict(
+                    ann_file='s3dis_infos_Area_4.pkl',
+                    backend_args=None,
+                    box_type_3d='Depth',
+                    data_root='data/s3dis/',
+                    filter_empty_gt=True,
+                    metainfo=dict(
+                        classes=(
+                            'table',
+                            'chair',
+                            'sofa',
+                            'bookcase',
+                            'board',
+                        )),
+                    pipeline=[
+                        dict(
+                            backend_args=None,
+                            coord_type='DEPTH',
+                            load_dim=6,
+                            shift_height=False,
+                            type='LoadPointsFromFile',
+                            use_color=True,
+                            use_dim=[
+                                0,
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                            ]),
+                        dict(
+                            type='LoadAnnotations3D',
+                            with_bbox_3d=True,
+                            with_label_3d=True),
+                        dict(num_points=100000, type='PointSample'),
+                        dict(
+                            flip_ratio_bev_horizontal=0.5,
+                            flip_ratio_bev_vertical=0.5,
+                            sync_2d=False,
+                            type='RandomFlip3D'),
+                        dict(
+                            rot_range=[
+                                -0.087266,
+                                0.087266,
+                            ],
+                            scale_ratio_range=[
+                                0.9,
+                                1.1,
+                            ],
+                            shift_height=False,
+                            translation_std=[
+                                0.1,
+                                0.1,
+                                0.1,
+                            ],
+                            type='GlobalRotScaleTrans'),
+                        dict(color_mean=None, type='NormalizePointsColor'),
+                        dict(
+                            keys=[
+                                'points',
+                                'gt_bboxes_3d',
+                                'gt_labels_3d',
+                            ],
+                            type='Pack3DDetInputs'),
+                    ],
+                    type='S3DISDataset'),
+                dict(
+                    ann_file='s3dis_infos_Area_6.pkl',
+                    backend_args=None,
+                    box_type_3d='Depth',
+                    data_root='data/s3dis/',
+                    filter_empty_gt=True,
+                    metainfo=dict(
+                        classes=(
+                            'table',
+                            'chair',
+                            'sofa',
+                            'bookcase',
+                            'board',
+                        )),
+                    pipeline=[
+                        dict(
+                            backend_args=None,
+                            coord_type='DEPTH',
+                            load_dim=6,
+                            shift_height=False,
+                            type='LoadPointsFromFile',
+                            use_color=True,
+                            use_dim=[
+                                0,
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                            ]),
+                        dict(
+                            type='LoadAnnotations3D',
+                            with_bbox_3d=True,
+                            with_label_3d=True),
+                        dict(num_points=100000, type='PointSample'),
+                        dict(
+                            flip_ratio_bev_horizontal=0.5,
+                            flip_ratio_bev_vertical=0.5,
+                            sync_2d=False,
+                            type='RandomFlip3D'),
+                        dict(
+                            rot_range=[
+                                -0.087266,
+                                0.087266,
+                            ],
+                            scale_ratio_range=[
+                                0.9,
+                                1.1,
+                            ],
+                            shift_height=False,
+                            translation_std=[
+                                0.1,
+                                0.1,
+                                0.1,
+                            ],
+                            type='GlobalRotScaleTrans'),
+                        dict(color_mean=None, type='NormalizePointsColor'),
+                        dict(
+                            keys=[
+                                'points',
+                                'gt_bboxes_3d',
+                                'gt_labels_3d',
+                            ],
+                            type='Pack3DDetInputs'),
+                    ],
+                    type='S3DISDataset'),
+            ],
+            type='ConcatDataset'),
+        times=13,
+        type='RepeatDataset'),
+    num_workers=4,
+    sampler=dict(shuffle=True, type='DefaultSampler'))
+train_pipeline = [
+    dict(
+        backend_args=None,
+        coord_type='DEPTH',
+        load_dim=6,
+        shift_height=False,
+        type='LoadPointsFromFile',
+        use_color=True,
+        use_dim=[
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+        ]),
+    dict(type='LoadAnnotations3D', with_bbox_3d=True, with_label_3d=True),
+    dict(num_points=100000, type='PointSample'),
+    dict(
+        flip_ratio_bev_horizontal=0.5,
+        flip_ratio_bev_vertical=0.5,
+        sync_2d=False,
+        type='RandomFlip3D'),
+    dict(
+        rot_range=[
+            -0.087266,
+            0.087266,
+        ],
+        scale_ratio_range=[
+            0.9,
+            1.1,
+        ],
+        shift_height=False,
+        translation_std=[
+            0.1,
+            0.1,
+            0.1,
+        ],
+        type='GlobalRotScaleTrans'),
+    dict(color_mean=None, type='NormalizePointsColor'),
+    dict(
+        keys=[
+            'points',
+            'gt_bboxes_3d',
+            'gt_labels_3d',
+        ],
+        type='Pack3DDetInputs'),
+]
+val_cfg = dict(type='ValLoop')
+val_dataloader = dict(
+    batch_size=1,
+    dataset=dict(
+        ann_file='s3dis_infos_Area_5.pkl',
+        backend_args=None,
+        box_type_3d='Depth',
+        data_root='data/s3dis/',
+        metainfo=dict(
+            classes=(
+                'table',
+                'chair',
+                'sofa',
+                'bookcase',
+                'board',
+            )),
+        pipeline=[
+            dict(
+                backend_args=None,
+                coord_type='DEPTH',
+                load_dim=6,
+                shift_height=False,
+                type='LoadPointsFromFile',
+                use_color=True,
+                use_dim=[
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                ]),
+            dict(
+                flip=False,
+                img_scale=(
+                    1333,
+                    800,
+                ),
+                pts_scale_ratio=1,
+                transforms=[
+                    dict(
+                        rot_range=[
+                            0,
+                            0,
+                        ],
+                        scale_ratio_range=[
+                            1.0,
+                            1.0,
+                        ],
+                        translation_std=[
+                            0,
+                            0,
+                            0,
+                        ],
+                        type='GlobalRotScaleTrans'),
+                    dict(
+                        flip_ratio_bev_horizontal=0.5,
+                        flip_ratio_bev_vertical=0.5,
+                        sync_2d=False,
+                        type='RandomFlip3D'),
+                    dict(num_points=100000, type='PointSample'),
+                    dict(color_mean=None, type='NormalizePointsColor'),
+                ],
+                type='MultiScaleFlipAug3D'),
+            dict(keys=[
+                'points',
+            ], type='Pack3DDetInputs'),
+        ],
+        test_mode=True,
+        type='S3DISDataset'),
+    num_workers=1,
+    sampler=dict(shuffle=False, type='DefaultSampler'))
+val_evaluator = dict(type='IndoorMetric')
+vis_backends = [
+    dict(type='LocalVisBackend'),
+]
+visualizer = dict(
+    name='visualizer',
+    type='Det3DLocalVisualizer',
+    vis_backends=[
+        dict(type='LocalVisBackend'),
+    ])
+work_dir = './work_dirs/fcaf3d_2xb8_s3dis-3d-5class'

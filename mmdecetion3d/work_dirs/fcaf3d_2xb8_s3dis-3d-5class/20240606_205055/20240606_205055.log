@@ -1,0 +1,1437 @@
+2024/06/06 20:50:56 - mmengine - INFO - 
+------------------------------------------------------------
+System environment:
+    sys.platform: linux
+    Python: 3.8.19 (default, Mar 20 2024, 19:58:24) [GCC 11.2.0]
+    CUDA available: True
+    MUSA available: False
+    numpy_random_seed: 361244516
+    GPU 0: NVIDIA GeForce RTX 3060 Laptop GPU
+    CUDA_HOME: /usr/local/cuda-12.1
+    NVCC: Cuda compilation tools, release 12.1, V12.1.105
+    GCC: gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0
+    PyTorch: 2.3.0
+    PyTorch compiling details: PyTorch built with:
+  - GCC 9.3
+  - C++ Version: 201703
+  - Intel(R) oneAPI Math Kernel Library Version 2023.1-Product Build 20230303 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v3.3.6 (Git Hash 86e6af5974177e513fd3fee58425e1063e7f1361)
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - LAPACK is enabled (usually provided by MKL)
+  - NNPACK is enabled
+  - CPU capability usage: AVX2
+  - CUDA Runtime 12.1
+  - NVCC architecture flags: -gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_86,code=sm_86;-gencode;arch=compute_90,code=sm_90
+  - CuDNN 8.9.2
+  - Magma 2.6.1
+  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, CUDA_VERSION=12.1, CUDNN_VERSION=8.9.2, CXX_COMPILER=/opt/rh/devtoolset-9/root/usr/bin/c++, CXX_FLAGS= -D_GLIBCXX_USE_CXX11_ABI=0 -fabi-version=11 -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOROCTRACER -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-function -Wno-unused-result -Wno-strict-overflow -Wno-strict-aliasing -Wno-stringop-overflow -Wsuggest-override -Wno-psabi -Wno-error=pedantic -Wno-error=old-style-cast -Wno-missing-braces -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=2.3.0, USE_CUDA=ON, USE_CUDNN=ON, USE_CUSPARSELT=1, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_GLOO=ON, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=ON, USE_OPENMP=ON, USE_ROCM=OFF, USE_ROCM_KERNEL_ASSERT=OFF, 
+
+    TorchVision: 0.18.0
+    OpenCV: 4.9.0
+    MMEngine: 0.10.4
+
+Runtime environment:
+    cudnn_benchmark: False
+    mp_cfg: {'mp_start_method': 'fork', 'opencv_num_threads': 0}
+    dist_cfg: {'backend': 'nccl'}
+    seed: 361244516
+    Distributed launcher: pytorch
+    Distributed training: True
+    GPU number: 1
+------------------------------------------------------------
+
+2024/06/06 20:50:57 - mmengine - INFO - Config:
+backend_args = None
+custom_hooks = [
+    dict(after_iter=True, type='EmptyCacheHook'),
+]
+data_root = 'data/s3dis/'
+dataset_type = 'S3DISDataset'
+default_hooks = dict(
+    checkpoint=dict(interval=-1, type='CheckpointHook'),
+    logger=dict(interval=50, type='LoggerHook'),
+    param_scheduler=dict(type='ParamSchedulerHook'),
+    sampler_seed=dict(type='DistSamplerSeedHook'),
+    timer=dict(type='IterTimerHook'),
+    visualization=dict(type='Det3DVisualizationHook'))
+default_scope = 'mmdet3d'
+env_cfg = dict(
+    cudnn_benchmark=False,
+    dist_cfg=dict(backend='nccl'),
+    mp_cfg=dict(mp_start_method='fork', opencv_num_threads=0))
+launcher = 'pytorch'
+load_from = None
+log_level = 'INFO'
+log_processor = dict(by_epoch=True, type='LogProcessor', window_size=50)
+metainfo = dict(classes=(
+    'table',
+    'chair',
+    'sofa',
+    'bookcase',
+    'board',
+))
+model = dict(
+    backbone=dict(depth=34, in_channels=3, type='MinkResNet'),
+    bbox_head=dict(
+        bbox_loss=dict(type='AxisAlignedIoULoss'),
+        center_loss=dict(type='mmdet.CrossEntropyLoss', use_sigmoid=True),
+        cls_loss=dict(type='mmdet.FocalLoss'),
+        in_channels=(
+            64,
+            128,
+            256,
+            512,
+        ),
+        num_classes=5,
+        num_reg_outs=6,
+        out_channels=128,
+        pts_assign_threshold=27,
+        pts_center_threshold=18,
+        pts_prune_threshold=100000,
+        type='FCAF3DHead',
+        voxel_size=0.01),
+    data_preprocessor=dict(type='Det3DDataPreprocessor'),
+    test_cfg=dict(iou_thr=0.5, nms_pre=1000, score_thr=0.01),
+    train_cfg=dict(),
+    type='MinkSingleStage3DDetector')
+optim_wrapper = dict(
+    clip_grad=dict(max_norm=10, norm_type=2),
+    optimizer=dict(lr=0.001, type='AdamW', weight_decay=0.0001),
+    type='OptimWrapper')
+param_scheduler = dict(
+    begin=0,
+    by_epoch=True,
+    end=12,
+    gamma=0.1,
+    milestones=[
+        8,
+        11,
+    ],
+    type='MultiStepLR')
+resume = False
+test_area = 5
+test_cfg = dict(type='TestLoop')
+test_dataloader = dict(
+    batch_size=1,
+    dataset=dict(
+        ann_file='s3dis_infos_Area_5.pkl',
+        backend_args=None,
+        box_type_3d='Depth',
+        data_root='data/s3dis/',
+        metainfo=dict(
+            classes=(
+                'table',
+                'chair',
+                'sofa',
+                'bookcase',
+                'board',
+            )),
+        pipeline=[
+            dict(
+                backend_args=None,
+                coord_type='DEPTH',
+                load_dim=6,
+                shift_height=False,
+                type='LoadPointsFromFile',
+                use_color=True,
+                use_dim=[
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                ]),
+            dict(
+                flip=False,
+                img_scale=(
+                    1333,
+                    800,
+                ),
+                pts_scale_ratio=1,
+                transforms=[
+                    dict(
+                        rot_range=[
+                            0,
+                            0,
+                        ],
+                        scale_ratio_range=[
+                            1.0,
+                            1.0,
+                        ],
+                        translation_std=[
+                            0,
+                            0,
+                            0,
+                        ],
+                        type='GlobalRotScaleTrans'),
+                    dict(
+                        flip_ratio_bev_horizontal=0.5,
+                        flip_ratio_bev_vertical=0.5,
+                        sync_2d=False,
+                        type='RandomFlip3D'),
+                    dict(num_points=100000, type='PointSample'),
+                    dict(color_mean=None, type='NormalizePointsColor'),
+                ],
+                type='MultiScaleFlipAug3D'),
+            dict(keys=[
+                'points',
+            ], type='Pack3DDetInputs'),
+        ],
+        test_mode=True,
+        type='S3DISDataset'),
+    num_workers=1,
+    sampler=dict(shuffle=False, type='DefaultSampler'))
+test_evaluator = dict(type='IndoorMetric')
+test_pipeline = [
+    dict(
+        backend_args=None,
+        coord_type='DEPTH',
+        load_dim=6,
+        shift_height=False,
+        type='LoadPointsFromFile',
+        use_color=True,
+        use_dim=[
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+        ]),
+    dict(
+        flip=False,
+        img_scale=(
+            1333,
+            800,
+        ),
+        pts_scale_ratio=1,
+        transforms=[
+            dict(
+                rot_range=[
+                    0,
+                    0,
+                ],
+                scale_ratio_range=[
+                    1.0,
+                    1.0,
+                ],
+                translation_std=[
+                    0,
+                    0,
+                    0,
+                ],
+                type='GlobalRotScaleTrans'),
+            dict(
+                flip_ratio_bev_horizontal=0.5,
+                flip_ratio_bev_vertical=0.5,
+                sync_2d=False,
+                type='RandomFlip3D'),
+            dict(num_points=100000, type='PointSample'),
+            dict(color_mean=None, type='NormalizePointsColor'),
+        ],
+        type='MultiScaleFlipAug3D'),
+    dict(keys=[
+        'points',
+    ], type='Pack3DDetInputs'),
+]
+train_area = [
+    1,
+    2,
+    3,
+    4,
+    6,
+]
+train_cfg = dict(max_epochs=12, type='EpochBasedTrainLoop', val_interval=12)
+train_dataloader = dict(
+    batch_size=8,
+    dataset=dict(
+        dataset=dict(
+            datasets=[
+                dict(
+                    ann_file='s3dis_infos_Area_1.pkl',
+                    backend_args=None,
+                    box_type_3d='Depth',
+                    data_root='data/s3dis/',
+                    filter_empty_gt=True,
+                    metainfo=dict(
+                        classes=(
+                            'table',
+                            'chair',
+                            'sofa',
+                            'bookcase',
+                            'board',
+                        )),
+                    pipeline=[
+                        dict(
+                            backend_args=None,
+                            coord_type='DEPTH',
+                            load_dim=6,
+                            shift_height=False,
+                            type='LoadPointsFromFile',
+                            use_color=True,
+                            use_dim=[
+                                0,
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                            ]),
+                        dict(
+                            type='LoadAnnotations3D',
+                            with_bbox_3d=True,
+                            with_label_3d=True),
+                        dict(num_points=100000, type='PointSample'),
+                        dict(
+                            flip_ratio_bev_horizontal=0.5,
+                            flip_ratio_bev_vertical=0.5,
+                            sync_2d=False,
+                            type='RandomFlip3D'),
+                        dict(
+                            rot_range=[
+                                -0.087266,
+                                0.087266,
+                            ],
+                            scale_ratio_range=[
+                                0.9,
+                                1.1,
+                            ],
+                            shift_height=False,
+                            translation_std=[
+                                0.1,
+                                0.1,
+                                0.1,
+                            ],
+                            type='GlobalRotScaleTrans'),
+                        dict(color_mean=None, type='NormalizePointsColor'),
+                        dict(
+                            keys=[
+                                'points',
+                                'gt_bboxes_3d',
+                                'gt_labels_3d',
+                            ],
+                            type='Pack3DDetInputs'),
+                    ],
+                    type='S3DISDataset'),
+                dict(
+                    ann_file='s3dis_infos_Area_2.pkl',
+                    backend_args=None,
+                    box_type_3d='Depth',
+                    data_root='data/s3dis/',
+                    filter_empty_gt=True,
+                    metainfo=dict(
+                        classes=(
+                            'table',
+                            'chair',
+                            'sofa',
+                            'bookcase',
+                            'board',
+                        )),
+                    pipeline=[
+                        dict(
+                            backend_args=None,
+                            coord_type='DEPTH',
+                            load_dim=6,
+                            shift_height=False,
+                            type='LoadPointsFromFile',
+                            use_color=True,
+                            use_dim=[
+                                0,
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                            ]),
+                        dict(
+                            type='LoadAnnotations3D',
+                            with_bbox_3d=True,
+                            with_label_3d=True),
+                        dict(num_points=100000, type='PointSample'),
+                        dict(
+                            flip_ratio_bev_horizontal=0.5,
+                            flip_ratio_bev_vertical=0.5,
+                            sync_2d=False,
+                            type='RandomFlip3D'),
+                        dict(
+                            rot_range=[
+                                -0.087266,
+                                0.087266,
+                            ],
+                            scale_ratio_range=[
+                                0.9,
+                                1.1,
+                            ],
+                            shift_height=False,
+                            translation_std=[
+                                0.1,
+                                0.1,
+                                0.1,
+                            ],
+                            type='GlobalRotScaleTrans'),
+                        dict(color_mean=None, type='NormalizePointsColor'),
+                        dict(
+                            keys=[
+                                'points',
+                                'gt_bboxes_3d',
+                                'gt_labels_3d',
+                            ],
+                            type='Pack3DDetInputs'),
+                    ],
+                    type='S3DISDataset'),
+                dict(
+                    ann_file='s3dis_infos_Area_3.pkl',
+                    backend_args=None,
+                    box_type_3d='Depth',
+                    data_root='data/s3dis/',
+                    filter_empty_gt=True,
+                    metainfo=dict(
+                        classes=(
+                            'table',
+                            'chair',
+                            'sofa',
+                            'bookcase',
+                            'board',
+                        )),
+                    pipeline=[
+                        dict(
+                            backend_args=None,
+                            coord_type='DEPTH',
+                            load_dim=6,
+                            shift_height=False,
+                            type='LoadPointsFromFile',
+                            use_color=True,
+                            use_dim=[
+                                0,
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                            ]),
+                        dict(
+                            type='LoadAnnotations3D',
+                            with_bbox_3d=True,
+                            with_label_3d=True),
+                        dict(num_points=100000, type='PointSample'),
+                        dict(
+                            flip_ratio_bev_horizontal=0.5,
+                            flip_ratio_bev_vertical=0.5,
+                            sync_2d=False,
+                            type='RandomFlip3D'),
+                        dict(
+                            rot_range=[
+                                -0.087266,
+                                0.087266,
+                            ],
+                            scale_ratio_range=[
+                                0.9,
+                                1.1,
+                            ],
+                            shift_height=False,
+                            translation_std=[
+                                0.1,
+                                0.1,
+                                0.1,
+                            ],
+                            type='GlobalRotScaleTrans'),
+                        dict(color_mean=None, type='NormalizePointsColor'),
+                        dict(
+                            keys=[
+                                'points',
+                                'gt_bboxes_3d',
+                                'gt_labels_3d',
+                            ],
+                            type='Pack3DDetInputs'),
+                    ],
+                    type='S3DISDataset'),
+                dict(
+                    ann_file='s3dis_infos_Area_4.pkl',
+                    backend_args=None,
+                    box_type_3d='Depth',
+                    data_root='data/s3dis/',
+                    filter_empty_gt=True,
+                    metainfo=dict(
+                        classes=(
+                            'table',
+                            'chair',
+                            'sofa',
+                            'bookcase',
+                            'board',
+                        )),
+                    pipeline=[
+                        dict(
+                            backend_args=None,
+                            coord_type='DEPTH',
+                            load_dim=6,
+                            shift_height=False,
+                            type='LoadPointsFromFile',
+                            use_color=True,
+                            use_dim=[
+                                0,
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                            ]),
+                        dict(
+                            type='LoadAnnotations3D',
+                            with_bbox_3d=True,
+                            with_label_3d=True),
+                        dict(num_points=100000, type='PointSample'),
+                        dict(
+                            flip_ratio_bev_horizontal=0.5,
+                            flip_ratio_bev_vertical=0.5,
+                            sync_2d=False,
+                            type='RandomFlip3D'),
+                        dict(
+                            rot_range=[
+                                -0.087266,
+                                0.087266,
+                            ],
+                            scale_ratio_range=[
+                                0.9,
+                                1.1,
+                            ],
+                            shift_height=False,
+                            translation_std=[
+                                0.1,
+                                0.1,
+                                0.1,
+                            ],
+                            type='GlobalRotScaleTrans'),
+                        dict(color_mean=None, type='NormalizePointsColor'),
+                        dict(
+                            keys=[
+                                'points',
+                                'gt_bboxes_3d',
+                                'gt_labels_3d',
+                            ],
+                            type='Pack3DDetInputs'),
+                    ],
+                    type='S3DISDataset'),
+                dict(
+                    ann_file='s3dis_infos_Area_6.pkl',
+                    backend_args=None,
+                    box_type_3d='Depth',
+                    data_root='data/s3dis/',
+                    filter_empty_gt=True,
+                    metainfo=dict(
+                        classes=(
+                            'table',
+                            'chair',
+                            'sofa',
+                            'bookcase',
+                            'board',
+                        )),
+                    pipeline=[
+                        dict(
+                            backend_args=None,
+                            coord_type='DEPTH',
+                            load_dim=6,
+                            shift_height=False,
+                            type='LoadPointsFromFile',
+                            use_color=True,
+                            use_dim=[
+                                0,
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                            ]),
+                        dict(
+                            type='LoadAnnotations3D',
+                            with_bbox_3d=True,
+                            with_label_3d=True),
+                        dict(num_points=100000, type='PointSample'),
+                        dict(
+                            flip_ratio_bev_horizontal=0.5,
+                            flip_ratio_bev_vertical=0.5,
+                            sync_2d=False,
+                            type='RandomFlip3D'),
+                        dict(
+                            rot_range=[
+                                -0.087266,
+                                0.087266,
+                            ],
+                            scale_ratio_range=[
+                                0.9,
+                                1.1,
+                            ],
+                            shift_height=False,
+                            translation_std=[
+                                0.1,
+                                0.1,
+                                0.1,
+                            ],
+                            type='GlobalRotScaleTrans'),
+                        dict(color_mean=None, type='NormalizePointsColor'),
+                        dict(
+                            keys=[
+                                'points',
+                                'gt_bboxes_3d',
+                                'gt_labels_3d',
+                            ],
+                            type='Pack3DDetInputs'),
+                    ],
+                    type='S3DISDataset'),
+            ],
+            type='ConcatDataset'),
+        times=13,
+        type='RepeatDataset'),
+    num_workers=4,
+    sampler=dict(shuffle=True, type='DefaultSampler'))
+train_pipeline = [
+    dict(
+        backend_args=None,
+        coord_type='DEPTH',
+        load_dim=6,
+        shift_height=False,
+        type='LoadPointsFromFile',
+        use_color=True,
+        use_dim=[
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+        ]),
+    dict(type='LoadAnnotations3D', with_bbox_3d=True, with_label_3d=True),
+    dict(num_points=100000, type='PointSample'),
+    dict(
+        flip_ratio_bev_horizontal=0.5,
+        flip_ratio_bev_vertical=0.5,
+        sync_2d=False,
+        type='RandomFlip3D'),
+    dict(
+        rot_range=[
+            -0.087266,
+            0.087266,
+        ],
+        scale_ratio_range=[
+            0.9,
+            1.1,
+        ],
+        shift_height=False,
+        translation_std=[
+            0.1,
+            0.1,
+            0.1,
+        ],
+        type='GlobalRotScaleTrans'),
+    dict(color_mean=None, type='NormalizePointsColor'),
+    dict(
+        keys=[
+            'points',
+            'gt_bboxes_3d',
+            'gt_labels_3d',
+        ],
+        type='Pack3DDetInputs'),
+]
+val_cfg = dict(type='ValLoop')
+val_dataloader = dict(
+    batch_size=1,
+    dataset=dict(
+        ann_file='s3dis_infos_Area_5.pkl',
+        backend_args=None,
+        box_type_3d='Depth',
+        data_root='data/s3dis/',
+        metainfo=dict(
+            classes=(
+                'table',
+                'chair',
+                'sofa',
+                'bookcase',
+                'board',
+            )),
+        pipeline=[
+            dict(
+                backend_args=None,
+                coord_type='DEPTH',
+                load_dim=6,
+                shift_height=False,
+                type='LoadPointsFromFile',
+                use_color=True,
+                use_dim=[
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                ]),
+            dict(
+                flip=False,
+                img_scale=(
+                    1333,
+                    800,
+                ),
+                pts_scale_ratio=1,
+                transforms=[
+                    dict(
+                        rot_range=[
+                            0,
+                            0,
+                        ],
+                        scale_ratio_range=[
+                            1.0,
+                            1.0,
+                        ],
+                        translation_std=[
+                            0,
+                            0,
+                            0,
+                        ],
+                        type='GlobalRotScaleTrans'),
+                    dict(
+                        flip_ratio_bev_horizontal=0.5,
+                        flip_ratio_bev_vertical=0.5,
+                        sync_2d=False,
+                        type='RandomFlip3D'),
+                    dict(num_points=100000, type='PointSample'),
+                    dict(color_mean=None, type='NormalizePointsColor'),
+                ],
+                type='MultiScaleFlipAug3D'),
+            dict(keys=[
+                'points',
+            ], type='Pack3DDetInputs'),
+        ],
+        test_mode=True,
+        type='S3DISDataset'),
+    num_workers=1,
+    sampler=dict(shuffle=False, type='DefaultSampler'))
+val_evaluator = dict(type='IndoorMetric')
+vis_backends = [
+    dict(type='LocalVisBackend'),
+]
+visualizer = dict(
+    name='visualizer',
+    type='Det3DLocalVisualizer',
+    vis_backends=[
+        dict(type='LocalVisBackend'),
+    ])
+work_dir = './work_dirs/fcaf3d_2xb8_s3dis-3d-5class'
+
+2024/06/06 20:51:00 - mmengine - INFO - Hooks will be executed in the following order:
+before_run:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(BELOW_NORMAL) LoggerHook                         
+ -------------------- 
+before_train:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(NORMAL      ) IterTimerHook                      
+(VERY_LOW    ) CheckpointHook                     
+ -------------------- 
+before_train_epoch:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) DistSamplerSeedHook                
+(NORMAL      ) EmptyCacheHook                     
+ -------------------- 
+before_train_iter:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(NORMAL      ) IterTimerHook                      
+ -------------------- 
+after_train_iter:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) EmptyCacheHook                     
+(BELOW_NORMAL) LoggerHook                         
+(LOW         ) ParamSchedulerHook                 
+(VERY_LOW    ) CheckpointHook                     
+ -------------------- 
+after_train_epoch:
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) EmptyCacheHook                     
+(LOW         ) ParamSchedulerHook                 
+(VERY_LOW    ) CheckpointHook                     
+ -------------------- 
+before_val:
+(VERY_HIGH   ) RuntimeInfoHook                    
+ -------------------- 
+before_val_epoch:
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) EmptyCacheHook                     
+ -------------------- 
+before_val_iter:
+(NORMAL      ) IterTimerHook                      
+ -------------------- 
+after_val_iter:
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) Det3DVisualizationHook             
+(NORMAL      ) EmptyCacheHook                     
+(BELOW_NORMAL) LoggerHook                         
+ -------------------- 
+after_val_epoch:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) EmptyCacheHook                     
+(BELOW_NORMAL) LoggerHook                         
+(LOW         ) ParamSchedulerHook                 
+(VERY_LOW    ) CheckpointHook                     
+ -------------------- 
+after_val:
+(VERY_HIGH   ) RuntimeInfoHook                    
+ -------------------- 
+after_train:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(VERY_LOW    ) CheckpointHook                     
+ -------------------- 
+before_test:
+(VERY_HIGH   ) RuntimeInfoHook                    
+ -------------------- 
+before_test_epoch:
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) EmptyCacheHook                     
+ -------------------- 
+before_test_iter:
+(NORMAL      ) IterTimerHook                      
+ -------------------- 
+after_test_iter:
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) Det3DVisualizationHook             
+(NORMAL      ) EmptyCacheHook                     
+(BELOW_NORMAL) LoggerHook                         
+ -------------------- 
+after_test_epoch:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) EmptyCacheHook                     
+(BELOW_NORMAL) LoggerHook                         
+ -------------------- 
+after_test:
+(VERY_HIGH   ) RuntimeInfoHook                    
+ -------------------- 
+after_run:
+(BELOW_NORMAL) LoggerHook                         
+ -------------------- 
+2024/06/06 20:51:01 - mmengine - INFO - ------------------------------
+2024/06/06 20:51:01 - mmengine - INFO - The length of training dataset: 44
+2024/06/06 20:51:01 - mmengine - INFO - The number of instances per category in the dataset:
++----------+--------+
+| category | number |
++----------+--------+
+| table    | 69     |
+| chair    | 155    |
+| sofa     | 6      |
+| bookcase | 90     |
+| board    | 27     |
++----------+--------+
+2024/06/06 20:51:01 - mmengine - INFO - ------------------------------
+2024/06/06 20:51:01 - mmengine - INFO - The length of training dataset: 40
+2024/06/06 20:51:01 - mmengine - INFO - The number of instances per category in the dataset:
++----------+--------+
+| category | number |
++----------+--------+
+| table    | 46     |
+| chair    | 545    |
+| sofa     | 6      |
+| bookcase | 47     |
+| board    | 17     |
++----------+--------+
+2024/06/06 20:51:01 - mmengine - INFO - ------------------------------
+2024/06/06 20:51:01 - mmengine - INFO - The length of training dataset: 23
+2024/06/06 20:51:01 - mmengine - INFO - The number of instances per category in the dataset:
++----------+--------+
+| category | number |
++----------+--------+
+| table    | 30     |
+| chair    | 67     |
+| sofa     | 9      |
+| bookcase | 41     |
+| board    | 12     |
++----------+--------+
+2024/06/06 20:51:01 - mmengine - INFO - ------------------------------
+2024/06/06 20:51:01 - mmengine - INFO - The length of training dataset: 49
+2024/06/06 20:51:01 - mmengine - INFO - The number of instances per category in the dataset:
++----------+--------+
+| category | number |
++----------+--------+
+| table    | 79     |
+| chair    | 159    |
+| sofa     | 14     |
+| bookcase | 98     |
+| board    | 10     |
++----------+--------+
+2024/06/06 20:51:01 - mmengine - INFO - ------------------------------
+2024/06/06 20:51:01 - mmengine - INFO - The length of training dataset: 48
+2024/06/06 20:51:01 - mmengine - INFO - The number of instances per category in the dataset:
++----------+--------+
+| category | number |
++----------+--------+
+| table    | 77     |
+| chair    | 179    |
+| sofa     | 9      |
+| bookcase | 90     |
+| board    | 29     |
++----------+--------+
+2024/06/06 20:51:02 - mmengine - INFO - ------------------------------
+2024/06/06 20:51:02 - mmengine - INFO - The length of test dataset: 68
+2024/06/06 20:51:02 - mmengine - INFO - The number of instances per category in the dataset:
++----------+--------+
+| category | number |
++----------+--------+
+| table    | 154    |
+| chair    | 258    |
+| sofa     | 11     |
+| bookcase | 217    |
+| board    | 42     |
++----------+--------+
+2024/06/06 20:51:02 - mmengine - WARNING - The prefix is not set in metric class IndoorMetric.
+Name of parameter - Initialization information
+
+backbone.conv1.kernel - torch.Size([27, 3, 64]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.norm1.weight - torch.Size([1, 64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.norm1.bias - torch.Size([1, 64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer1.0.conv1.kernel - torch.Size([27, 64, 64]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer1.0.norm1.bn.weight - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer1.0.norm1.bn.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer1.0.conv2.kernel - torch.Size([27, 64, 64]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer1.0.norm2.bn.weight - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer1.0.norm2.bn.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer1.0.downsample.0.kernel - torch.Size([1, 64, 64]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer1.0.downsample.1.bn.weight - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer1.0.downsample.1.bn.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer1.1.conv1.kernel - torch.Size([27, 64, 64]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer1.1.norm1.bn.weight - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer1.1.norm1.bn.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer1.1.conv2.kernel - torch.Size([27, 64, 64]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer1.1.norm2.bn.weight - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer1.1.norm2.bn.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer1.2.conv1.kernel - torch.Size([27, 64, 64]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer1.2.norm1.bn.weight - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer1.2.norm1.bn.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer1.2.conv2.kernel - torch.Size([27, 64, 64]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer1.2.norm2.bn.weight - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer1.2.norm2.bn.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.0.conv1.kernel - torch.Size([27, 64, 128]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer2.0.norm1.bn.weight - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.0.norm1.bn.bias - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.0.conv2.kernel - torch.Size([27, 128, 128]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer2.0.norm2.bn.weight - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.0.norm2.bn.bias - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.0.downsample.0.kernel - torch.Size([1, 64, 128]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer2.0.downsample.1.bn.weight - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.0.downsample.1.bn.bias - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.1.conv1.kernel - torch.Size([27, 128, 128]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer2.1.norm1.bn.weight - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.1.norm1.bn.bias - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.1.conv2.kernel - torch.Size([27, 128, 128]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer2.1.norm2.bn.weight - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.1.norm2.bn.bias - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.2.conv1.kernel - torch.Size([27, 128, 128]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer2.2.norm1.bn.weight - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.2.norm1.bn.bias - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.2.conv2.kernel - torch.Size([27, 128, 128]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer2.2.norm2.bn.weight - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.2.norm2.bn.bias - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.3.conv1.kernel - torch.Size([27, 128, 128]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer2.3.norm1.bn.weight - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.3.norm1.bn.bias - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.3.conv2.kernel - torch.Size([27, 128, 128]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer2.3.norm2.bn.weight - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer2.3.norm2.bn.bias - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.0.conv1.kernel - torch.Size([27, 128, 256]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer3.0.norm1.bn.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.0.norm1.bn.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.0.conv2.kernel - torch.Size([27, 256, 256]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer3.0.norm2.bn.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.0.norm2.bn.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.0.downsample.0.kernel - torch.Size([1, 128, 256]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer3.0.downsample.1.bn.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.0.downsample.1.bn.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.1.conv1.kernel - torch.Size([27, 256, 256]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer3.1.norm1.bn.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.1.norm1.bn.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.1.conv2.kernel - torch.Size([27, 256, 256]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer3.1.norm2.bn.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.1.norm2.bn.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.2.conv1.kernel - torch.Size([27, 256, 256]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer3.2.norm1.bn.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.2.norm1.bn.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.2.conv2.kernel - torch.Size([27, 256, 256]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer3.2.norm2.bn.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.2.norm2.bn.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.3.conv1.kernel - torch.Size([27, 256, 256]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer3.3.norm1.bn.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.3.norm1.bn.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.3.conv2.kernel - torch.Size([27, 256, 256]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer3.3.norm2.bn.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.3.norm2.bn.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.4.conv1.kernel - torch.Size([27, 256, 256]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer3.4.norm1.bn.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.4.norm1.bn.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.4.conv2.kernel - torch.Size([27, 256, 256]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer3.4.norm2.bn.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.4.norm2.bn.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.5.conv1.kernel - torch.Size([27, 256, 256]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer3.5.norm1.bn.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.5.norm1.bn.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.5.conv2.kernel - torch.Size([27, 256, 256]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer3.5.norm2.bn.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer3.5.norm2.bn.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer4.0.conv1.kernel - torch.Size([27, 256, 512]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer4.0.norm1.bn.weight - torch.Size([512]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer4.0.norm1.bn.bias - torch.Size([512]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer4.0.conv2.kernel - torch.Size([27, 512, 512]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer4.0.norm2.bn.weight - torch.Size([512]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer4.0.norm2.bn.bias - torch.Size([512]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer4.0.downsample.0.kernel - torch.Size([1, 256, 512]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer4.0.downsample.1.bn.weight - torch.Size([512]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer4.0.downsample.1.bn.bias - torch.Size([512]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer4.1.conv1.kernel - torch.Size([27, 512, 512]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer4.1.norm1.bn.weight - torch.Size([512]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer4.1.norm1.bn.bias - torch.Size([512]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer4.1.conv2.kernel - torch.Size([27, 512, 512]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer4.1.norm2.bn.weight - torch.Size([512]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer4.1.norm2.bn.bias - torch.Size([512]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer4.2.conv1.kernel - torch.Size([27, 512, 512]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer4.2.norm1.bn.weight - torch.Size([512]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer4.2.norm1.bn.bias - torch.Size([512]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer4.2.conv2.kernel - torch.Size([27, 512, 512]): 
+Initialized by user-defined `init_weights` in MinkResNet  
+
+backbone.layer4.2.norm2.bn.weight - torch.Size([512]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+backbone.layer4.2.norm2.bn.bias - torch.Size([512]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.out_block_0.0.kernel - torch.Size([27, 64, 128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.out_block_0.1.bn.weight - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.out_block_0.1.bn.bias - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_1.0.kernel - torch.Size([8, 128, 64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_1.1.bn.weight - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_1.1.bn.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_1.3.kernel - torch.Size([27, 64, 64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_1.4.bn.weight - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_1.4.bn.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.out_block_1.0.kernel - torch.Size([27, 128, 128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.out_block_1.1.bn.weight - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.out_block_1.1.bn.bias - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_2.0.kernel - torch.Size([8, 256, 128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_2.1.bn.weight - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_2.1.bn.bias - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_2.3.kernel - torch.Size([27, 128, 128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_2.4.bn.weight - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_2.4.bn.bias - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.out_block_2.0.kernel - torch.Size([27, 256, 128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.out_block_2.1.bn.weight - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.out_block_2.1.bn.bias - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_3.0.kernel - torch.Size([8, 512, 256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_3.1.bn.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_3.1.bn.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_3.3.kernel - torch.Size([27, 256, 256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_3.4.bn.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.up_block_3.4.bn.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.out_block_3.0.kernel - torch.Size([27, 512, 128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.out_block_3.1.bn.weight - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.out_block_3.1.bn.bias - torch.Size([128]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.conv_center.kernel - torch.Size([128, 1]): 
+Initialized by user-defined `init_weights` in FCAF3DHead  
+
+bbox_head.conv_reg.kernel - torch.Size([128, 6]): 
+Initialized by user-defined `init_weights` in FCAF3DHead  
+
+bbox_head.conv_cls.kernel - torch.Size([128, 5]): 
+Initialized by user-defined `init_weights` in FCAF3DHead  
+
+bbox_head.conv_cls.bias - torch.Size([1, 5]): 
+Initialized by user-defined `init_weights` in FCAF3DHead  
+
+bbox_head.scales.0.scale - torch.Size([]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.scales.1.scale - torch.Size([]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.scales.2.scale - torch.Size([]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+
+bbox_head.scales.3.scale - torch.Size([]): 
+The value is the same before and after calling `init_weights` of MinkSingleStage3DDetector  
+2024/06/06 20:51:02 - mmengine - WARNING - "FileClient" will be deprecated in future. Please use io functions in https://mmengine.readthedocs.io/en/latest/api/fileio.html#file-io
+2024/06/06 20:51:02 - mmengine - WARNING - "HardDiskBackend" is the alias of "LocalBackend" and the former will be deprecated in future.
+2024/06/06 20:51:02 - mmengine - INFO - Checkpoints will be saved to /home/bnxy/mmdetection3d/work_dirs/fcaf3d_2xb8_s3dis-3d-5class.
+2024/06/06 21:44:46 - mmengine - INFO - Epoch(train)  [1][ 50/332]  lr: 1.0000e-03  eta: 2 days, 22:26:32  time: 64.4618  data_time: 0.2057  memory: 14396  grad_norm: 3.4106  loss: 2.0575  center_loss: 0.6765  bbox_loss: 0.7033  cls_loss: 0.6777
+2024/06/06 22:37:39 - mmengine - INFO - Epoch(train)  [1][100/332]  lr: 1.0000e-03  eta: 2 days, 21:00:28  time: 63.4622  data_time: 0.2051  memory: 14500  grad_norm: 2.8963  loss: 1.7157  center_loss: 0.6710  bbox_loss: 0.5959  cls_loss: 0.4488
+2024/06/06 23:24:38 - mmengine - INFO - Epoch(train)  [1][150/332]  lr: 1.0000e-03  eta: 2 days, 17:25:26  time: 56.3693  data_time: 0.2150  memory: 15938  grad_norm: 3.1691  loss: 1.6292  center_loss: 0.6655  bbox_loss: 0.5510  cls_loss: 0.4126
+2024/06/07 00:23:46 - mmengine - INFO - Epoch(train)  [1][200/332]  lr: 1.0000e-03  eta: 2 days, 19:04:43  time: 70.9746  data_time: 0.2204  memory: 16789  grad_norm: 2.9483  loss: 1.6023  center_loss: 0.6624  bbox_loss: 0.5253  cls_loss: 0.4146
+2024/06/07 01:09:14 - mmengine - INFO - Epoch(train)  [1][250/332]  lr: 1.0000e-03  eta: 2 days, 16:16:12  time: 54.5502  data_time: 0.1727  memory: 14614  grad_norm: 2.8542  loss: 1.5202  center_loss: 0.6601  bbox_loss: 0.4916  cls_loss: 0.3685
+2024/06/07 02:00:28 - mmengine - INFO - Epoch(train)  [1][300/332]  lr: 1.0000e-03  eta: 2 days, 15:19:45  time: 61.4935  data_time: 0.1998  memory: 16155  grad_norm: 3.0158  loss: 1.5074  center_loss: 0.6575  bbox_loss: 0.4830  cls_loss: 0.3669
+2024/06/07 02:33:54 - mmengine - INFO - Exp name: fcaf3d_2xb8_s3dis-3d-5class_20240606_205055
+2024/06/07 03:31:12 - mmengine - INFO - Epoch(train)  [2][ 50/332]  lr: 1.0000e-03  eta: 2 days, 14:53:08  time: 68.7581  data_time: 0.2064  memory: 16917  grad_norm: 3.0094  loss: 1.4681  center_loss: 0.6577  bbox_loss: 0.4628  cls_loss: 0.3475
+2024/06/07 04:11:32 - mmengine - INFO - Epoch(train)  [2][100/332]  lr: 1.0000e-03  eta: 2 days, 12:21:45  time: 48.3994  data_time: 0.1894  memory: 15206  grad_norm: 2.8091  loss: 1.4373  center_loss: 0.6537  bbox_loss: 0.4534  cls_loss: 0.3301
+2024/06/07 05:08:20 - mmengine - INFO - Epoch(train)  [2][150/332]  lr: 1.0000e-03  eta: 2 days, 12:13:00  time: 68.1532  data_time: 0.2236  memory: 16157  grad_norm: 2.5883  loss: 1.4140  center_loss: 0.6579  bbox_loss: 0.4404  cls_loss: 0.3157
+2024/06/07 06:05:58 - mmengine - INFO - Epoch(train)  [2][200/332]  lr: 1.0000e-03  eta: 2 days, 12:00:42  time: 69.1676  data_time: 0.2104  memory: 14226  grad_norm: 3.0349  loss: 1.3805  center_loss: 0.6540  bbox_loss: 0.4254  cls_loss: 0.3011
+2024/06/07 06:56:44 - mmengine - INFO - Epoch(train)  [2][250/332]  lr: 1.0000e-03  eta: 2 days, 11:00:25  time: 60.9168  data_time: 0.1993  memory: 15511  grad_norm: 2.3573  loss: 1.3722  center_loss: 0.6531  bbox_loss: 0.4183  cls_loss: 0.3008
+2024/06/07 07:39:31 - mmengine - INFO - Epoch(train)  [2][300/332]  lr: 1.0000e-03  eta: 2 days, 9:19:19  time: 51.3412  data_time: 0.1649  memory: 14119  grad_norm: 2.5056  loss: 1.3512  center_loss: 0.6495  bbox_loss: 0.4093  cls_loss: 0.2924
+2024/06/07 08:12:30 - mmengine - INFO - Exp name: fcaf3d_2xb8_s3dis-3d-5class_20240606_205055
+2024/06/07 08:58:03 - mmengine - INFO - Epoch(train)  [3][ 50/332]  lr: 1.0000e-03  eta: 2 days, 7:29:28  time: 54.6328  data_time: 0.2071  memory: 14464  grad_norm: 2.3037  loss: 1.3212  center_loss: 0.6482  bbox_loss: 0.3973  cls_loss: 0.2757
+2024/06/07 09:44:22 - mmengine - INFO - Epoch(train)  [3][100/332]  lr: 1.0000e-03  eta: 2 days, 6:19:12  time: 55.5832  data_time: 0.1489  memory: 15118  grad_norm: 2.7270  loss: 1.3297  center_loss: 0.6460  bbox_loss: 0.3983  cls_loss: 0.2854
+2024/06/07 10:43:06 - mmengine - INFO - Epoch(train)  [3][150/332]  lr: 1.0000e-03  eta: 2 days, 6:00:14  time: 70.4761  data_time: 0.2113  memory: 16133  grad_norm: 2.2703  loss: 1.3180  center_loss: 0.6492  bbox_loss: 0.3959  cls_loss: 0.2729
+2024/06/07 12:16:40 - mmengine - INFO - Epoch(train)  [3][200/332]  lr: 1.0000e-03  eta: 2 days, 7:42:27  time: 112.2853  data_time: 0.2073  memory: 18219  grad_norm: 2.3201  loss: 1.2921  center_loss: 0.6484  bbox_loss: 0.3797  cls_loss: 0.2639
+2024/06/07 13:21:41 - mmengine - INFO - Epoch(train)  [3][250/332]  lr: 1.0000e-03  eta: 2 days, 7:27:21  time: 78.0191  data_time: 0.1699  memory: 12044  grad_norm: 2.1685  loss: 1.2924  center_loss: 0.6485  bbox_loss: 0.3795  cls_loss: 0.2645
+2024/06/07 14:24:08 - mmengine - INFO - Epoch(train)  [3][300/332]  lr: 1.0000e-03  eta: 2 days, 6:59:02  time: 74.9384  data_time: 0.2153  memory: 15660  grad_norm: 2.3974  loss: 1.2770  center_loss: 0.6480  bbox_loss: 0.3730  cls_loss: 0.2560
+2024/06/07 15:00:40 - mmengine - INFO - Exp name: fcaf3d_2xb8_s3dis-3d-5class_20240606_205055
+2024/06/07 15:06:26 - mmengine - INFO - Exp name: fcaf3d_2xb8_s3dis-3d-5class_20240606_205055
+2024/06/07 16:03:58 - mmengine - INFO - Epoch(train)  [4][ 50/332]  lr: 1.0000e-03  eta: 2 days, 5:58:15  time: 75.9447  data_time: 0.2040  memory: 15380  grad_norm: 2.2601  loss: 1.2403  center_loss: 0.6460  bbox_loss: 0.3577  cls_loss: 0.2366
+2024/06/07 17:21:32 - mmengine - INFO - Epoch(train)  [4][100/332]  lr: 1.0000e-03  eta: 2 days, 6:02:20  time: 93.0858  data_time: 0.2170  memory: 17276  grad_norm: 2.1284  loss: 1.2483  center_loss: 0.6451  bbox_loss: 0.3613  cls_loss: 0.2420
+2024/06/07 19:23:22 - mmengine - INFO - Epoch(train)  [4][150/332]  lr: 1.0000e-03  eta: 2 days, 7:48:54  time: 146.2028  data_time: 0.1963  memory: 15157  grad_norm: 2.4512  loss: 1.2370  center_loss: 0.6458  bbox_loss: 0.3605  cls_loss: 0.2307
+2024/06/07 20:47:01 - mmengine - INFO - Epoch(train)  [4][200/332]  lr: 1.0000e-03  eta: 2 days, 7:47:20  time: 100.3702  data_time: 0.2058  memory: 14617  grad_norm: 2.1826  loss: 1.2268  center_loss: 0.6464  bbox_loss: 0.3539  cls_loss: 0.2264
+2024/06/07 22:16:15 - mmengine - INFO - Epoch(train)  [4][250/332]  lr: 1.0000e-03  eta: 2 days, 7:51:30  time: 107.0933  data_time: 0.1931  memory: 14702  grad_norm: 2.1289  loss: 1.2156  center_loss: 0.6445  bbox_loss: 0.3457  cls_loss: 0.2255
+2024/06/07 23:06:14 - mmengine - INFO - Epoch(train)  [4][300/332]  lr: 1.0000e-03  eta: 2 days, 6:27:00  time: 59.9683  data_time: 0.1779  memory: 16551  grad_norm: 2.0516  loss: 1.2211  center_loss: 0.6433  bbox_loss: 0.3464  cls_loss: 0.2314
+2024/06/07 23:37:30 - mmengine - INFO - Exp name: fcaf3d_2xb8_s3dis-3d-5class_20240606_205055
+2024/06/08 00:32:27 - mmengine - INFO - Epoch(train)  [5][ 50/332]  lr: 1.0000e-03  eta: 2 days, 4:21:54  time: 65.9350  data_time: 0.2320  memory: 16504  grad_norm: 2.0212  loss: 1.1978  center_loss: 0.6466  bbox_loss: 0.3371  cls_loss: 0.2141
+2024/06/08 01:18:07 - mmengine - INFO - Epoch(train)  [5][100/332]  lr: 1.0000e-03  eta: 2 days, 2:55:29  time: 54.8125  data_time: 0.1815  memory: 16129  grad_norm: 2.2908  loss: 1.1929  center_loss: 0.6445  bbox_loss: 0.3362  cls_loss: 0.2123
+2024/06/08 01:58:48 - mmengine - INFO - Epoch(train)  [5][150/332]  lr: 1.0000e-03  eta: 2 days, 1:23:19  time: 48.8054  data_time: 0.1789  memory: 14598  grad_norm: 2.1104  loss: 1.1885  center_loss: 0.6450  bbox_loss: 0.3309  cls_loss: 0.2126
+2024/06/08 02:42:25 - mmengine - INFO - Epoch(train)  [5][200/332]  lr: 1.0000e-03  eta: 1 day, 23:59:18  time: 52.3576  data_time: 0.1708  memory: 15595  grad_norm: 2.0754  loss: 1.1713  center_loss: 0.6417  bbox_loss: 0.3283  cls_loss: 0.2013
+2024/06/08 03:34:11 - mmengine - INFO - Epoch(train)  [5][250/332]  lr: 1.0000e-03  eta: 1 day, 22:50:12  time: 62.1026  data_time: 0.1864  memory: 16623  grad_norm: 2.0539  loss: 1.1719  center_loss: 0.6442  bbox_loss: 0.3218  cls_loss: 0.2059
+2024/06/08 04:21:33 - mmengine - INFO - Epoch(train)  [5][300/332]  lr: 1.0000e-03  eta: 1 day, 21:35:50  time: 56.8414  data_time: 0.1932  memory: 17948  grad_norm: 2.1807  loss: 1.1700  center_loss: 0.6433  bbox_loss: 0.3226  cls_loss: 0.2041
+2024/06/08 04:54:57 - mmengine - INFO - Exp name: fcaf3d_2xb8_s3dis-3d-5class_20240606_205055
+2024/06/08 05:45:00 - mmengine - INFO - Epoch(train)  [6][ 50/332]  lr: 1.0000e-03  eta: 1 day, 19:44:58  time: 60.0598  data_time: 0.1935  memory: 15644  grad_norm: 2.2672  loss: 1.1717  center_loss: 0.6427  bbox_loss: 0.3251  cls_loss: 0.2040
+2024/06/08 06:37:04 - mmengine - INFO - Epoch(train)  [6][100/332]  lr: 1.0000e-03  eta: 1 day, 18:40:07  time: 62.4821  data_time: 0.1527  memory: 14489  grad_norm: 1.9796  loss: 1.1547  center_loss: 0.6448  bbox_loss: 0.3144  cls_loss: 0.1955
+2024/06/08 07:24:07 - mmengine - INFO - Epoch(train)  [6][150/332]  lr: 1.0000e-03  eta: 1 day, 17:29:56  time: 56.4590  data_time: 0.1885  memory: 17990  grad_norm: 1.9384  loss: 1.1405  center_loss: 0.6413  bbox_loss: 0.3097  cls_loss: 0.1895
+2024/06/08 08:19:56 - mmengine - INFO - Epoch(train)  [6][200/332]  lr: 1.0000e-03  eta: 1 day, 16:31:01  time: 66.9746  data_time: 0.2158  memory: 16213  grad_norm: 2.0671  loss: 1.1252  center_loss: 0.6408  bbox_loss: 0.2991  cls_loss: 0.1853
+2024/06/08 09:04:57 - mmengine - INFO - Epoch(train)  [6][250/332]  lr: 1.0000e-03  eta: 1 day, 15:20:31  time: 54.0178  data_time: 0.1834  memory: 14601  grad_norm: 1.9645  loss: 1.1503  center_loss: 0.6402  bbox_loss: 0.3176  cls_loss: 0.1926
+2024/06/08 09:47:37 - mmengine - INFO - Epoch(train)  [6][300/332]  lr: 1.0000e-03  eta: 1 day, 14:08:55  time: 51.2094  data_time: 0.1656  memory: 14075  grad_norm: 2.1435  loss: 1.1363  center_loss: 0.6411  bbox_loss: 0.3123  cls_loss: 0.1830
+2024/06/08 10:20:37 - mmengine - INFO - Exp name: fcaf3d_2xb8_s3dis-3d-5class_20240606_205055
+2024/06/08 10:31:33 - mmengine - INFO - Exp name: fcaf3d_2xb8_s3dis-3d-5class_20240606_205055
+2024/06/08 11:06:01 - mmengine - INFO - Epoch(train)  [7][ 50/332]  lr: 1.0000e-03  eta: 1 day, 12:22:33  time: 54.4837  data_time: 0.2186  memory: 15685  grad_norm: 1.9215  loss: 1.1445  center_loss: 0.6434  bbox_loss: 0.3114  cls_loss: 0.1897
+2024/06/08 11:46:46 - mmengine - INFO - Epoch(train)  [7][100/332]  lr: 1.0000e-03  eta: 1 day, 11:12:23  time: 48.8889  data_time: 0.1647  memory: 13060  grad_norm: 2.0030  loss: 1.1187  center_loss: 0.6393  bbox_loss: 0.2989  cls_loss: 0.1805
+2024/06/08 12:29:58 - mmengine - INFO - Epoch(train)  [7][150/332]  lr: 1.0000e-03  eta: 1 day, 10:05:42  time: 51.8402  data_time: 0.1846  memory: 15001  grad_norm: 1.9930  loss: 1.1195  center_loss: 0.6407  bbox_loss: 0.2993  cls_loss: 0.1795
+2024/06/08 13:21:48 - mmengine - INFO - Epoch(train)  [7][200/332]  lr: 1.0000e-03  eta: 1 day, 9:07:09  time: 62.2050  data_time: 0.1788  memory: 14455  grad_norm: 1.8934  loss: 1.1296  center_loss: 0.6418  bbox_loss: 0.3032  cls_loss: 0.1846
+2024/06/08 14:13:10 - mmengine - INFO - Epoch(train)  [7][250/332]  lr: 1.0000e-03  eta: 1 day, 8:08:33  time: 61.6467  data_time: 0.1995  memory: 15749  grad_norm: 2.0860  loss: 1.1413  center_loss: 0.6402  bbox_loss: 0.2978  cls_loss: 0.2033
+2024/06/08 15:05:13 - mmengine - INFO - Epoch(train)  [7][300/332]  lr: 1.0000e-03  eta: 1 day, 7:10:45  time: 62.4622  data_time: 0.2064  memory: 17168  grad_norm: 1.8843  loss: 1.1241  center_loss: 0.6388  bbox_loss: 0.3010  cls_loss: 0.1844
+2024/06/08 15:40:23 - mmengine - INFO - Exp name: fcaf3d_2xb8_s3dis-3d-5class_20240606_205055
+2024/06/08 16:29:33 - mmengine - INFO - Epoch(train)  [8][ 50/332]  lr: 1.0000e-03  eta: 1 day, 5:35:48  time: 58.9905  data_time: 0.1702  memory: 15351  grad_norm: 1.7945  loss: 1.1123  center_loss: 0.6379  bbox_loss: 0.2917  cls_loss: 0.1826
+2024/06/08 17:15:42 - mmengine - INFO - Epoch(train)  [8][100/332]  lr: 1.0000e-03  eta: 1 day, 4:34:51  time: 55.3813  data_time: 0.1723  memory: 13515  grad_norm: 1.8950  loss: 1.0976  center_loss: 0.6392  bbox_loss: 0.2861  cls_loss: 0.1723
+2024/06/08 18:05:00 - mmengine - INFO - Epoch(train)  [8][150/332]  lr: 1.0000e-03  eta: 1 day, 3:36:26  time: 59.1503  data_time: 0.1698  memory: 16518  grad_norm: 1.9476  loss: 1.0848  center_loss: 0.6405  bbox_loss: 0.2819  cls_loss: 0.1623
+2024/06/08 18:58:17 - mmengine - INFO - Epoch(train)  [8][200/332]  lr: 1.0000e-03  eta: 1 day, 2:40:41  time: 63.9513  data_time: 0.1870  memory: 15741  grad_norm: 1.9196  loss: 1.1040  center_loss: 0.6392  bbox_loss: 0.2927  cls_loss: 0.1720
+2024/06/08 19:47:14 - mmengine - INFO - Epoch(train)  [8][250/332]  lr: 1.0000e-03  eta: 1 day, 1:42:38  time: 58.7248  data_time: 0.1806  memory: 17410  grad_norm: 1.9033  loss: 1.0816  center_loss: 0.6391  bbox_loss: 0.2798  cls_loss: 0.1627
+2024/06/08 20:35:32 - mmengine - INFO - Epoch(train)  [8][300/332]  lr: 1.0000e-03  eta: 1 day, 0:44:37  time: 57.9753  data_time: 0.1975  memory: 15522  grad_norm: 1.9314  loss: 1.0899  center_loss: 0.6426  bbox_loss: 0.2834  cls_loss: 0.1639
+2024/06/08 20:58:59 - mmengine - INFO - Exp name: fcaf3d_2xb8_s3dis-3d-5class_20240606_205055
+2024/06/08 21:45:37 - mmengine - INFO - Epoch(train)  [9][ 50/332]  lr: 1.0000e-04  eta: 23:05:56  time: 55.9488  data_time: 0.1971  memory: 17132  grad_norm: 1.4539  loss: 1.1160  center_loss: 0.6388  bbox_loss: 0.2797  cls_loss: 0.1975
+2024/06/08 22:30:43 - mmengine - INFO - Epoch(train)  [9][100/332]  lr: 1.0000e-04  eta: 22:07:38  time: 54.1241  data_time: 0.1643  memory: 11641  grad_norm: 1.3878  loss: 1.0790  center_loss: 0.6371  bbox_loss: 0.2631  cls_loss: 0.1788
+2024/06/08 23:17:42 - mmengine - INFO - Epoch(train)  [9][150/332]  lr: 1.0000e-04  eta: 21:10:37  time: 56.3801  data_time: 0.1650  memory: 13916  grad_norm: 1.4074  loss: 1.0786  center_loss: 0.6384  bbox_loss: 0.2633  cls_loss: 0.1769
+2024/06/09 00:08:29 - mmengine - INFO - Epoch(train)  [9][200/332]  lr: 1.0000e-04  eta: 20:15:26  time: 60.9382  data_time: 0.1868  memory: 18936  grad_norm: 1.4776  loss: 1.0532  center_loss: 0.6387  bbox_loss: 0.2527  cls_loss: 0.1618
+2024/06/09 00:59:55 - mmengine - INFO - Epoch(train)  [9][250/332]  lr: 1.0000e-04  eta: 19:20:39  time: 61.7198  data_time: 0.2176  memory: 16011  grad_norm: 1.5887  loss: 1.0459  center_loss: 0.6367  bbox_loss: 0.2479  cls_loss: 0.1613
+2024/06/09 01:47:13 - mmengine - INFO - Epoch(train)  [9][300/332]  lr: 1.0000e-04  eta: 18:24:33  time: 56.7577  data_time: 0.1763  memory: 13710  grad_norm: 1.3744  loss: 1.0449  center_loss: 0.6382  bbox_loss: 0.2502  cls_loss: 0.1565
+2024/06/09 02:17:04 - mmengine - INFO - Exp name: fcaf3d_2xb8_s3dis-3d-5class_20240606_205055
+2024/06/09 02:29:07 - mmengine - INFO - Exp name: fcaf3d_2xb8_s3dis-3d-5class_20240606_205055
+2024/06/09 03:07:37 - mmengine - INFO - Epoch(train) [10][ 50/332]  lr: 1.0000e-04  eta: 16:54:02  time: 60.6511  data_time: 0.1996  memory: 13964  grad_norm: 1.5418  loss: 1.0328  center_loss: 0.6366  bbox_loss: 0.2459  cls_loss: 0.1503
+2024/06/09 04:03:23 - mmengine - INFO - Epoch(train) [10][100/332]  lr: 1.0000e-04  eta: 16:01:04  time: 66.9217  data_time: 0.2011  memory: 15529  grad_norm: 1.4837  loss: 1.0380  center_loss: 0.6369  bbox_loss: 0.2497  cls_loss: 0.1515
+2024/06/09 04:54:13 - mmengine - INFO - Epoch(train) [10][150/332]  lr: 1.0000e-04  eta: 15:06:41  time: 60.9929  data_time: 0.1836  memory: 15259  grad_norm: 1.5798  loss: 1.0244  center_loss: 0.6377  bbox_loss: 0.2416  cls_loss: 0.1450
+2024/06/09 05:45:11 - mmengine - INFO - Epoch(train) [10][200/332]  lr: 1.0000e-04  eta: 14:12:27  time: 61.1606  data_time: 0.2010  memory: 15495  grad_norm: 1.5638  loss: 1.0202  center_loss: 0.6378  bbox_loss: 0.2393  cls_loss: 0.1431
+2024/06/09 06:29:36 - mmengine - INFO - Epoch(train) [10][250/332]  lr: 1.0000e-04  eta: 13:16:48  time: 53.3087  data_time: 0.1630  memory: 14354  grad_norm: 1.5791  loss: 1.0183  center_loss: 0.6347  bbox_loss: 0.2385  cls_loss: 0.1451
+2024/06/09 07:16:35 - mmengine - INFO - Epoch(train) [10][300/332]  lr: 1.0000e-04  eta: 12:22:02  time: 56.3811  data_time: 0.1985  memory: 14482  grad_norm: 1.6247  loss: 1.0046  center_loss: 0.6369  bbox_loss: 0.2283  cls_loss: 0.1393
+2024/06/09 07:45:50 - mmengine - INFO - Exp name: fcaf3d_2xb8_s3dis-3d-5class_20240606_205055
+2024/06/09 08:41:59 - mmengine - INFO - Epoch(train) [11][ 50/332]  lr: 1.0000e-04  eta: 10:54:14  time: 67.3585  data_time: 0.1994  memory: 16822  grad_norm: 1.5526  loss: 1.0146  center_loss: 0.6363  bbox_loss: 0.2364  cls_loss: 0.1419
+2024/06/09 09:39:57 - mmengine - INFO - Epoch(train) [11][100/332]  lr: 1.0000e-04  eta: 10:01:44  time: 69.5735  data_time: 0.2073  memory: 14523  grad_norm: 1.5030  loss: 1.0061  center_loss: 0.6354  bbox_loss: 0.2342  cls_loss: 0.1365
+2024/06/09 10:32:57 - mmengine - INFO - Epoch(train) [11][150/332]  lr: 1.0000e-04  eta: 9:08:20  time: 63.5892  data_time: 0.1799  memory: 15775  grad_norm: 1.5937  loss: 1.0146  center_loss: 0.6359  bbox_loss: 0.2377  cls_loss: 0.1410
+2024/06/09 11:27:43 - mmengine - INFO - Epoch(train) [11][200/332]  lr: 1.0000e-04  eta: 8:15:11  time: 65.7280  data_time: 0.1834  memory: 15232  grad_norm: 1.7083  loss: 1.0048  center_loss: 0.6377  bbox_loss: 0.2318  cls_loss: 0.1353
+2024/06/09 12:17:25 - mmengine - INFO - Epoch(train) [11][250/332]  lr: 1.0000e-04  eta: 7:21:24  time: 59.6400  data_time: 0.1668  memory: 15495  grad_norm: 1.6478  loss: 1.0006  center_loss: 0.6361  bbox_loss: 0.2293  cls_loss: 0.1352
+2024/06/09 13:13:48 - mmengine - INFO - Epoch(train) [11][300/332]  lr: 1.0000e-04  eta: 6:28:24  time: 67.6633  data_time: 0.1940  memory: 15156  grad_norm: 1.6943  loss: 1.0000  center_loss: 0.6388  bbox_loss: 0.2266  cls_loss: 0.1346
+2024/06/09 13:39:26 - mmengine - INFO - Exp name: fcaf3d_2xb8_s3dis-3d-5class_20240606_205055
+2024/06/09 14:24:28 - mmengine - INFO - Epoch(train) [12][ 50/332]  lr: 1.0000e-05  eta: 4:59:37  time: 54.0454  data_time: 0.1812  memory: 17697  grad_norm: 1.5339  loss: 0.9890  center_loss: 0.6336  bbox_loss: 0.2231  cls_loss: 0.1323
+2024/06/09 15:16:41 - mmengine - INFO - Epoch(train) [12][100/332]  lr: 1.0000e-05  eta: 4:06:26  time: 62.6511  data_time: 0.1836  memory: 14854  grad_norm: 1.4871  loss: 1.0060  center_loss: 0.6377  bbox_loss: 0.2303  cls_loss: 0.1379
+2024/06/09 16:04:46 - mmengine - INFO - Epoch(train) [12][150/332]  lr: 1.0000e-05  eta: 3:13:05  time: 57.6926  data_time: 0.1480  memory: 13523  grad_norm: 1.4777  loss: 0.9974  center_loss: 0.6378  bbox_loss: 0.2269  cls_loss: 0.1327
+2024/06/09 17:00:51 - mmengine - INFO - Epoch(train) [12][200/332]  lr: 1.0000e-05  eta: 2:20:08  time: 67.2969  data_time: 0.1912  memory: 12405  grad_norm: 1.5006  loss: 0.9900  center_loss: 0.6376  bbox_loss: 0.2215  cls_loss: 0.1308
+2024/06/09 17:46:17 - mmengine - INFO - Epoch(train) [12][250/332]  lr: 1.0000e-05  eta: 1:26:54  time: 54.5235  data_time: 0.1571  memory: 14807  grad_norm: 1.5238  loss: 0.9941  center_loss: 0.6323  bbox_loss: 0.2279  cls_loss: 0.1340
+2024/06/09 18:45:37 - mmengine - INFO - Epoch(train) [12][300/332]  lr: 1.0000e-05  eta: 0:33:57  time: 71.1983  data_time: 0.2114  memory: 17195  grad_norm: 1.4095  loss: 0.9940  center_loss: 0.6349  bbox_loss: 0.2265  cls_loss: 0.1326
+2024/06/09 19:16:48 - mmengine - INFO - Exp name: fcaf3d_2xb8_s3dis-3d-5class_20240606_205055
+2024/06/09 19:16:48 - mmengine - INFO - Saving checkpoint at 12 epochs
+2024/06/09 19:17:07 - mmengine - INFO - Epoch(val) [12][50/68]    eta: 0:00:05  time: 0.3319  data_time: 0.0106  memory: 15820  
+2024/06/09 19:17:12 - mmengine - INFO - 
++----------+---------+---------+---------+---------+
+| classes  | AP_0.25 | AR_0.25 | AP_0.50 | AR_0.50 |
++----------+---------+---------+---------+---------+
+| table    | 0.7058  | 0.9545  | 0.4980  | 0.7857  |
+| chair    | 0.9779  | 0.9922  | 0.8878  | 0.9225  |
+| sofa     | 0.6689  | 1.0000  | 0.4467  | 0.7273  |
+| bookcase | 0.3879  | 0.9263  | 0.1724  | 0.5760  |
+| board    | 0.3584  | 0.5714  | 0.0239  | 0.1190  |
++----------+---------+---------+---------+---------+
+| Overall  | 0.6198  | 0.8889  | 0.4058  | 0.6261  |
++----------+---------+---------+---------+---------+
+2024/06/09 19:17:12 - mmengine - INFO - Epoch(val) [12][68/68]    table_AP_0.25: 0.7058  chair_AP_0.25: 0.9779  sofa_AP_0.25: 0.6689  bookcase_AP_0.25: 0.3879  board_AP_0.25: 0.3584  mAP_0.25: 0.6198  table_rec_0.25: 0.9545  chair_rec_0.25: 0.9922  sofa_rec_0.25: 1.0000  bookcase_rec_0.25: 0.9263  board_rec_0.25: 0.5714  mAR_0.25: 0.8889  table_AP_0.50: 0.4980  chair_AP_0.50: 0.8878  sofa_AP_0.50: 0.4467  bookcase_AP_0.50: 0.1724  board_AP_0.50: 0.0239  mAP_0.50: 0.4058  table_rec_0.50: 0.7857  chair_rec_0.50: 0.9225  sofa_rec_0.50: 0.7273  bookcase_rec_0.50: 0.5760  board_rec_0.50: 0.1190  mAR_0.50: 0.6261  data_time: 0.0106  time: 0.3006
